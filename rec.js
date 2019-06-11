@@ -137,6 +137,10 @@ function recordGift(lid, uid, giftId, coinType, totalCoin) {
   })
 }
 
+const io = require('socket.io-client')
+const socket = io('http://0.0.0.0:8001')
+const dispatch = io('http://0.0.0.0:9003')
+
 socket.on('info', async info => {
   info.forEach(info => {
     if (info.roomid != undefined) {
@@ -144,4 +148,24 @@ socket.on('info', async info => {
       recordTitle(info.roomid, info.title)
     }
   });
+})
+
+dispatch.on('LIVE', ({ roomid }) => {
+  recordStatus(roomid, 1, true)
+})
+dispatch.on('PREPARING', ({ roomid }) => {
+  recordStatus(roomid, 0, true)
+})
+dispatch.on('ROUND', ({ roomid }) => {
+  recordStatus(roomid, 2, true)
+})
+dispatch.on('online', ({ roomid, online }) => {
+  recordWatcher(roomid, online)
+})
+dispatch.on('danmaku', ({ message, roomid, mid }) => {
+  record(roomid, mid, message)
+})
+dispatch.on('gift', ({ roomid, mid, giftId, totalCoin, coinType }) => {
+  let coinTypeInteger = coinType == 'silver' ? 0 : 1
+  recordGift(roomid, mid, giftId, coinTypeInteger, totalCoin)
 })
