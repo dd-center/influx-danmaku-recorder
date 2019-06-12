@@ -170,11 +170,16 @@ const io = require('socket.io-client')
 const socket = io('http://0.0.0.0:8001')
 const dispatch = io('http://0.0.0.0:9003')
 
+let titleCache = {}
+
 socket.on('info', async info => {
   info.forEach(info => {
     if (info.roomid != undefined) {
       recordStatus(info.roomid, info.liveStatus, false)
-      recordTitle(info.roomid, info.title)
+      if (titleCache[info.roomid] !== info.title) {
+        titleCache[info.roomid] = info.title
+        recordTitle(info.roomid, info.title)
+      }
     }
   });
 })
