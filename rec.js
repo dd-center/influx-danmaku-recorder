@@ -44,6 +44,17 @@ const config = {
         coinType: Influx.FieldType.INTEGER,
         totalCoin: Influx.FieldType.INTEGER
       }
+    },
+    {
+      measurement: 'guard',
+      tags: ['lid'],
+      fields: {
+        uid: Influx.FieldType.INTEGER,
+        giftId: Influx.FieldType.INTEGER,
+        num: Influx.FieldType.INTEGER,
+        price: Influx.FieldType.INTEGER,
+        level: Influx.FieldType.INTEGER
+      }
     }
   ]
 }
@@ -137,6 +148,24 @@ function recordGift(lid, uid, giftId, coinType, totalCoin) {
   })
 }
 
+const recordGuard = ({ lid, uid, num, price, giftId,level }) => db.writePoints([{
+  measurement: 'guard',
+  tags: {
+    lid
+  },
+  fields: {
+    uid,
+    giftId,
+    num,
+    price,
+    level
+  }
+}], {
+  database: dbName
+}).catch(err => {
+  console.error(`Error saving data to InfluxDB! ${err.stack}`)
+})
+
 const io = require('socket.io-client')
 const socket = io('http://0.0.0.0:8001')
 const dispatch = io('http://0.0.0.0:9003')
@@ -168,4 +197,7 @@ dispatch.on('danmaku', ({ message, roomid, mid }) => {
 dispatch.on('gift', ({ roomid, mid, giftId, totalCoin, coinType }) => {
   let coinTypeInteger = coinType == 'silver' ? 0 : 1
   recordGift(roomid, mid, giftId, coinTypeInteger, totalCoin)
+})
+dispatch.on('guard', ({ roomid, mid, num, price, giftId, level }) => {
+  recordGuard({ lid: roomid, uid: mid, num, price, giftId, level })
 })
