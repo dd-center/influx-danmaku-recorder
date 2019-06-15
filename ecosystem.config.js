@@ -4,6 +4,12 @@ module.exports = {
     script: 'rec.js',
     instances: 1,
     autorestart: true,
-    watch: false,
-  }],
+    watch: false
+  }, {
+    name: 'falcon',
+    script: 'read.js',
+    instances: 1,
+    autorestart: true,
+    watch: false
+  }]
 }
