@@ -13,23 +13,11 @@ io.on('connection', socket => {
     if (typeof arc === 'function') {
       if (e === 'lastHour') {
         let query = await db.query('select content from danmaku where time > now() - 1h')
-        if (query.length) {
-          arc(query
-            .map(({ content }) => content)
-            .reduce((acc, cur) => acc + '\n' + cur))
-        } else {
-          arc('')
-        }
+        arc(query.map(({ content }) => content))
       }
       if (e === 'lastDay') {
         let query = await db.query('select content from danmaku where time > now() - 1d')
-        if (query.length) {
-          arc(query
-            .map(({ content }) => content)
-            .reduce((acc, cur) => acc + '\n' + cur))
-        } else {
-          arc('')
-        }
+        arc(query.map(({ content }) => content))
       }
     }
   })
