@@ -11,6 +11,7 @@ const db = new InfluxDB(config)
 io.on('connection', socket => {
   const handler = e => socket.on(e, async (data, arc) => {
     if (typeof arc === 'function') {
+      console.log(e)
       if (e === 'lastHour') {
         let query = await db.query('select content from danmaku where time > now() - 1h')
         arc(query.map(({ content }) => content))
