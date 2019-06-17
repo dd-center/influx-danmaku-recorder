@@ -20,9 +20,19 @@ io.on('connection', socket => {
         let query = await db.query('select content from danmaku where time > now() - 1d')
         arc(query.map(({ content }) => content))
       }
+      if (e === 'bulkLive') {
+        let query = await db.query(`select * from watcher where lid = '${Number(data)}'`)
+        arc(query.map(({ time, watcher }) => ({ time: time.getTime(), online: watcher })))
+      }
+      if (e === 'bulkLiveWeek') {
+        let query = await db.query(`select * from watcher where lid = '${Number(data)}' and time > now() - 1w`)
+        arc(query.map(({ time, watcher }) => ({ time: time.getTime(), online: watcher })))
+      }
     }
   })
 
   handler('lastHour')
   handler('lastDay')
+  handler('bulkLive')
+  handler('bulkLiveWeek')
 })
