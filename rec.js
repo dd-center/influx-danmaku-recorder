@@ -24,7 +24,7 @@ function record(lid, uid, content) {
 }
 
 function recordWatcher(lid, watcher) {
-  db.writePoints([{
+  return db.writePoints([{
     measurement: 'watcher',
     tags: {
       lid
@@ -115,6 +115,7 @@ const socket = io('http://0.0.0.0:8001')
 const dispatch = io('http://0.0.0.0:9003')
 
 let titleCache = {}
+let onlineCache = {}
 
 socket.on('info', async info => {
   info.forEach(info => {
@@ -137,8 +138,14 @@ dispatch.on('PREPARING', ({ roomid }) => {
 dispatch.on('ROUND', ({ roomid }) => {
   recordStatus(roomid, 2, true)
 })
-dispatch.on('online', ({ roomid, online }) => {
-  recordWatcher(roomid, online)
+dispatch.on('online', async ({ roomid, online }) => {
+  if (onlineCache[roomid] !== online) {
+    if (onlineCache[roomid] === 1) {
+      await recordWatcher(roomid, 1)
+    }
+    onlineCache[roomid] = online
+    recordWatcher(roomid, online)
+  }
 })
 dispatch.on('danmaku', ({ message, roomid, mid }) => {
   record(roomid, mid, message)
