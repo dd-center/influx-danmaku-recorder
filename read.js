@@ -21,11 +21,11 @@ io.on('connection', socket => {
         arc(query.map(({ content }) => content))
       }
       if (e === 'bulkLive') {
-        let query = await db.query(`select * from watcher where lid = '${Number(data)}'`)
+        let query = await db.query(`select * from watcher where lid = '${Number(data)}' order by time`)
         arc(query.map(({ time, watcher }) => ({ time: time.getTime(), online: watcher })))
       }
       if (e === 'bulkLiveWeek') {
-        let query = await db.query(`select * from watcher where lid = '${Number(data)}' and time > now() - 1w`)
+        let query = await db.query(`select * from watcher where lid = '${Number(data)}' and time > now() - 1w order by time`)
         arc(query.map(({ time, watcher }) => ({ time: time.getTime(), online: watcher })))
       }
     }
